@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id        String      @id @default(cuid())
+  email     String      @unique
+  name      String?
+  password  String
+  twitter   String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  isAdmin   Boolean     @default(false)
+  resources resources[]
+}
+
+model event {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  venue       String
+  link        String
+  image       String
+  time        String
+  date        String
+  isCompleted Boolean  @default(false)
+  organizers  String
+  duration    Int      @default(120)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model resources {
+  id         String   @id @default(cuid())
+  name       String
+  link       String
+  image      String
+  isApproved Boolean  @default(false)
+  category   Category @default(mobile)
+  userId     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model space {
+  id        String   @id @default(cuid())
+  name      String
+  link      String
+  image     String
+  start     String
+  end       String
+  date      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model groups {
+  id        String   @id @default(cuid())
+  name      String
+  link      String
+  image     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model report {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model feedback {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Category {
+  mobile
+  data
+  design
+  web
+  cloud
+  iot
+  ai
+  game
+}
