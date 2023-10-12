@@ -79,6 +79,7 @@ model report {
 model feedback {
   id        String   @id @default(cuid())
   name      String
+  email     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
