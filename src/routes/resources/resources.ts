@@ -7,7 +7,7 @@ const router = Router();
 
 //* getting all the approved resources
 
-router.get("/approved", async (req: Request, res: Response) => {
+router.get("/approved", async (_req: Request, res: Response) => {
   try {
     const resources = await prisma.resources.findMany({
       where: {
@@ -29,7 +29,7 @@ router.get("/approved", async (req: Request, res: Response) => {
 
 //* getting all the unapproved resources
 
-router.get("/unapproved", async (req: Request, res: Response) => {
+router.get("/unapproved", async (_req: Request, res: Response) => {
   try {
     const resources = await prisma.resources.findMany({
       where: {

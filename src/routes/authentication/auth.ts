@@ -1,7 +1,6 @@
 import { prisma } from "../../utilities/db";
 import { Router, Request, Response } from "express";
 import { CourierClient } from "@trycourier/courier";
-import bcrypt from "bcrypt";
 import { body } from "express-validator";
 import { handleErrors } from "../../utilities/middlewares";
 const router = Router();
@@ -109,7 +108,7 @@ async function sendEmail(email: any) {
       authorizationToken: "pk_prod_GRZYXQV9SP46X4KTDBZ1MPBW6BP7",
     });
 
-    const { requestId } = await courier.send({
+      await courier.send({
       message: {
         to: {
           email: email,

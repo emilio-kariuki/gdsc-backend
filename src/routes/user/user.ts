@@ -1,12 +1,13 @@
 import { Request, Response, Router } from "express";
 import { prisma } from "../../utilities/db";
 import { isUserAvailable } from "../../utilities/middlewares";
+import { firebase } from "../../utilities/firebase";
 
 const router = Router();
 
 //* get all the users
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", async (_req: Request, res: Response) => {
   try {
     const user = await prisma.user.findMany({
       select: {
@@ -24,7 +25,7 @@ router.get("/", async (req: Request, res: Response) => {
     console.log("====================================");
     console.log(e);
     console.log("====================================");
-    res.status(500).json(e)
+    res.status(500).json(e);
   }
 });
 
@@ -43,7 +44,7 @@ router.get("/:id", isUserAvailable, async (req: Request, res: Response) => {
     console.log("====================================");
     console.log(e);
     console.log("====================================");
-    res.status(500).json(e)
+    res.status(500).json(e);
   }
 });
 
@@ -60,7 +61,7 @@ router.delete("/:id", isUserAvailable, async (req: Request, res: Response) => {
     console.log("====================================");
     console.log(e);
     console.log("====================================");
-    res.status(500).json(e)
+    res.status(500).json(e);
   }
 });
 router.put("/password", async (req: Request, res: Response) => {
@@ -81,7 +82,7 @@ router.put("/password", async (req: Request, res: Response) => {
     console.log("====================================");
     console.log(e);
     console.log("====================================");
-    res.status(500).json(e)
+    res.status(500).json(e);
   }
 });
 
@@ -107,7 +108,7 @@ router.put(
       console.log("====================================");
       console.log(error);
       console.log("====================================");
-      res.status(500).json(error)
+      res.status(500).json(error);
     }
   }
 );
@@ -134,14 +135,14 @@ router.put(
       console.log("====================================");
       console.log(error);
       console.log("====================================");
-      res.status(500).json(error)
+      res.status(500).json(error);
     }
   }
 );
 
 //* getting the leads
 
-router.get("/leads", async (req: Request, res: Response) => {
+router.get("/leads", async (_req: Request, res: Response) => {
   try {
     const user = await prisma.user.findMany({
       where: {
@@ -155,8 +156,43 @@ router.get("/leads", async (req: Request, res: Response) => {
     console.log("====================================");
     console.log(error);
     console.log("====================================");
-    res.status(500).json(error)
+    res.status(500).json(error);
+  }
+});
 
+router.put("/:id", isUserAvailable, async (req: Request, res: Response) => {
+  try {
+    const user = await prisma.user.update({
+      where: {
+        id: req.params.id,
+      },
+      data: {
+        ...req.body,
+      },
+    });
+    !user
+      ? res.status(404).json("error getting the user")
+      : res.status(200).json(user);
+  } catch (error) {
+    console.log("====================================");
+    console.log(error);
+    console.log("====================================");
+    res.status(500).json(error);
+  }
+});
+
+router.get("/firebase/users", async (_req: Request, res: Response) => {
+  try {
+    const firestore = firebase.firestore();
+    const query = await firestore.collection("event").get();
+    const data = query.docs.map((doc) => doc.data());
+
+    res.json(data);
+  } catch (error) {
+    console.log("====================================");
+    console.log(error);
+    console.log("====================================");
+    res.json(error)
   }
 });
 

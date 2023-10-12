@@ -7,7 +7,7 @@ const router = Router();
 
 //* get all the groups
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", async (_req: Request, res: Response) => {
   try {
     const groups = await prisma.groups.findMany();
     !groups

@@ -12,7 +12,6 @@ export const eventJob = new CronJob(
     });
     for (const event of events) {
       const title = event.name;
-      const body = event.description;
       const minutes = await eventMinutes(event);
       if (minutes === 1 || minutes === 60) {
         try {

@@ -41,7 +41,7 @@ router.post(
 
 //* get all the twitter spaces
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", async (_req: Request, res: Response) => {
   try {
     const spaces = await prisma.space.findMany();
     !spaces
@@ -143,3 +143,4 @@ router.delete("/:id", isSpaceAvailable, async (req: Request, res: Response) => {
 });
 
 export default router;
+

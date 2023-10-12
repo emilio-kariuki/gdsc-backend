@@ -7,7 +7,7 @@ const router = Router();
 
 //* get all the upcoming  events
 
-router.get("/upcoming", async (req: Request, res: Response) => {
+router.get("/upcoming", async (_req: Request, res: Response) => {
   try {
     const event = await prisma.event.findMany({
       where: {
@@ -30,7 +30,7 @@ router.get("/upcoming", async (req: Request, res: Response) => {
 
 //* get all the past  events
 
-router.get("/past", async (req: Request, res: Response) => {
+router.get("/past", async (_req: Request, res: Response) => {
   try {
     const event = await prisma.event.findMany({
       where: {
