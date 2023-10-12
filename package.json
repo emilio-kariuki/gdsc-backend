@@ -3,9 +3,11 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "bun src/index.ts"
+    "start": "bun ./src/index.ts",
+    "postinstall": "bun prisma generate"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "latest",
     "bun-types": "latest"
   },
   "peerDependencies": {
@@ -15,6 +17,7 @@
     "@prisma/client": "^5.4.2",
     "@trycourier/courier": "^5.5.0",
     "@types/bcrypt": "^5.0.0",
+    "@types/cors": "^2.8.14",
     "@types/cron": "^2.4.0",
     "@types/express": "^4.17.18",
     "@types/express-validator": "^3.0.0",
