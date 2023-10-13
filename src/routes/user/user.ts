@@ -1,87 +1,131 @@
-import { Request, Response, Router } from "express";
-import { prisma } from "../../utilities/db";
-import { isUserAvailable } from "../../utilities/middlewares";
-import { firebase } from "../../utilities/firebase";
+import { Request, Response, Router } from 'express';
+import { prisma } from '../../utilities/db';
+import { isUserAvailable } from '../../utilities/middlewares';
+import { firebase } from '../../utilities/firebase';
+import {
+
+  redisClient
+} from '../../utilities/redis';
+import { checkRedisHealth } from '../../utilities/redis';
 
 const router = Router();
 
 //* get all the users
 
-router.get("/", async (_req: Request, res: Response) => {
+router.get('/', async (_req: Request, res: Response) => {
   try {
-    const user = await prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        twitter: true,
-      },
-    });
-
-    !user
-      ? res.status(404).json("error getting the users")
-      : res.status(200).json(user);
+    const cacheKey = `users`;
+    let users;
+    const cacheData = await (await redisClient).get(cacheKey);
+    if (cacheData) {
+      users = JSON.parse(cacheData);
+      console.log('====================================');
+      console.log('from cache');
+      console.log('====================================');
+    } else {
+      users = await prisma.user.findMany({
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          twitter: true
+        }
+      });
+      !users
+        ? res.status(404).json('error getting the uses')
+        : await (
+            await redisClient
+          ).setEx(cacheKey, 86400, JSON.stringify(users));
+      console.log('====================================');
+      console.log('from api');
+      console.log('====================================');
+    }
+    res.status(200).json(users);
   } catch (e) {
-    console.log("====================================");
+    console.log('====================================');
     console.log(e);
-    console.log("====================================");
+    console.log('====================================');
     res.status(500).json(e);
   }
 });
 
 //* get a single user
 
-router.get("/:id", isUserAvailable, async (req: Request, res: Response) => {
+router.get('/:id', isUserAvailable, async (req: Request, res: Response) => {
   try {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: req.params.id,
-      },
-    });
+    const cacheKey = `user_profile:${req.params.id}`;
+    const cacheData = await (await redisClient).get(cacheKey);
 
-    res.status(200).json(user);
+    let data;
+
+    if (cacheData) {
+      console.log('====================================');
+      console.log('from cache');
+      console.log('====================================');
+      data = JSON.parse(cacheData);
+    } else {
+      data = await prisma.user.findUnique({
+        where: {
+          id: req.params.id
+        }
+      });
+      console.log('====================================');
+      console.log('from api');
+      console.log('====================================');
+      await (await redisClient).setEx(cacheKey, 3000, JSON.stringify(data));
+    }
+
+    res.status(200).json(data);
   } catch (e) {
-    console.log("====================================");
+    console.log('====================================');
     console.log(e);
-    console.log("====================================");
+    console.log('====================================');
     res.status(500).json(e);
   }
 });
 
-router.delete("/:id", isUserAvailable, async (req: Request, res: Response) => {
+router.delete('/:id', isUserAvailable, async (req: Request, res: Response) => {
   try {
+    const cacheKey = `user_profile:${req.params.id}`;
     const user = await prisma.user.delete({
       where: {
-        id: req.params.id,
-      },
+        id: req.params.id
+      }
     });
-
-    res.status(200).json(user);
+    await (await redisClient).del(cacheKey);
+    await deleteUserTable();
+    await fetchUserTable();
+    res.status(200).json({
+      ok: true,
+      message: 'user deleted successfully'
+    });
   } catch (e) {
-    console.log("====================================");
+    console.log('====================================');
     console.log(e);
-    console.log("====================================");
+    console.log('====================================');
     res.status(500).json(e);
   }
 });
-router.put("/password", async (req: Request, res: Response) => {
+router.put('/password', async (req: Request, res: Response) => {
   try {
+    const cacheKey = `user_profile:${req.params.id}`;
     const user = await prisma.user.update({
       where: {
-        email: req.body.email,
+        email: req.body.email
       },
       data: {
-        password: req.body.password,
-      },
+        password: req.body.password
+      }
     });
+    await (await redisClient).del(cacheKey);
 
     !user
-      ? res.status(404).json("error updating  the password")
+      ? res.status(404).json('error updating  the password')
       : res.status(200).json(user);
   } catch (e) {
-    console.log("====================================");
+    console.log('====================================');
     console.log(e);
-    console.log("====================================");
+    console.log('====================================');
     res.status(500).json(e);
   }
 });
@@ -89,25 +133,29 @@ router.put("/password", async (req: Request, res: Response) => {
 //* make a user a admin
 
 router.put(
-  "/enableAdmin/:id",
+  '/enableAdmin/:id',
   isUserAvailable,
   async (req: Request, res: Response) => {
     try {
       const user = await prisma.user.update({
         where: {
-          id: req.params.id,
+          id: req.params.id
         },
         data: {
-          isAdmin: true,
-        },
+          isAdmin: true
+        }
       });
       !user
-        ? res.status(404).json("error creating the admin")
-        : res.status(200).json(user);
+        ? res.status(404).json('error creating the admin')
+        : async () => {
+            await deleteUserTable();
+            await fetchUserTable();
+            res.status(200).json(user);
+          };
     } catch (error) {
-      console.log("====================================");
+      console.log('====================================');
       console.log(error);
-      console.log("====================================");
+      console.log('====================================');
       res.status(500).json(error);
     }
   }
@@ -116,25 +164,29 @@ router.put(
 //* disable a user a admin
 
 router.put(
-  "/disableAdmin/:id",
+  '/disableAdmin/:id',
   isUserAvailable,
   async (req: Request, res: Response) => {
     try {
       const user = await prisma.user.update({
         where: {
-          id: req.params.id,
+          id: req.params.id
         },
         data: {
-          isAdmin: false,
-        },
+          isAdmin: false
+        }
       });
       !user
-        ? res.status(404).json("error disabling the admin")
-        : res.status(200).json(user);
+        ? res.status(404).json('error disabling the admin')
+        : async () => {
+            await deleteUserTable();
+            await fetchUserTable();
+            res.status(200).json(user);
+          };
     } catch (error) {
-      console.log("====================================");
+      console.log('====================================');
       console.log(error);
-      console.log("====================================");
+      console.log('====================================');
       res.status(500).json(error);
     }
   }
@@ -142,58 +194,104 @@ router.put(
 
 //* getting the leads
 
-router.get("/leads", async (_req: Request, res: Response) => {
+router.get('/leads', async (_req: Request, res: Response) => {
   try {
     const user = await prisma.user.findMany({
       where: {
-        isAdmin: true,
-      },
+        isAdmin: true
+      }
     });
     !user
-      ? res.status(404).json("error getting the admins")
+      ? res.status(404).json('error getting the admins')
       : res.status(200).json(user);
   } catch (error) {
-    console.log("====================================");
+    console.log('====================================');
     console.log(error);
-    console.log("====================================");
+    console.log('====================================');
     res.status(500).json(error);
   }
 });
 
-router.put("/:id", isUserAvailable, async (req: Request, res: Response) => {
+router.put('/:id', isUserAvailable, async (req: Request, res: Response) => {
   try {
+    const cacheKey = `user_profile:${req.params.id}`;
+    const usersKey = `users`;
     const user = await prisma.user.update({
       where: {
-        id: req.params.id,
+        id: req.params.id
       },
       data: {
-        ...req.body,
-      },
+        ...req.body
+      }
     });
+    await (await redisClient).del(cacheKey);
+    await deleteUserTable();
+    await fetchUserTable();
     !user
-      ? res.status(404).json("error getting the user")
+      ? res.status(404).json('error updating the user')
       : res.status(200).json(user);
   } catch (error) {
-    console.log("====================================");
+    console.log('====================================');
     console.log(error);
-    console.log("====================================");
+    console.log('====================================');
     res.status(500).json(error);
   }
 });
 
-router.get("/firebase/users", async (_req: Request, res: Response) => {
+router.get('/firebase/users', async (_req: Request, res: Response) => {
   try {
     const firestore = firebase.firestore();
-    const query = await firestore.collection("event").get();
+    const query = await firestore.collection('event').get();
     const data = query.docs.map((doc) => doc.data());
 
     res.json(data);
   } catch (error) {
-    console.log("====================================");
+    console.log('====================================');
     console.log(error);
-    console.log("====================================");
-    res.json(error)
+    console.log('====================================');
+    res.json(error);
   }
 });
 
 export default router;
+
+
+
+export const deleteUserTable = async () => {
+  const userKey = 'users';
+  const isDeleted = await (await redisClient).del(userKey);
+  !isDeleted
+    ? () => {
+        console.log('====================================');
+        console.log('cannot delete the table');
+        console.log('====================================');
+      }
+    : () => {
+        console.log('====================================');
+        console.log('deleted the table');
+        console.log('====================================');
+      }
+      return ;
+};
+
+export const fetchUserTable = async (
+  
+) => {
+  const userKey = 'users';
+  const users = await prisma.user.findMany();
+  const isInserted = await (
+    await redisClient
+  ).setEx(userKey, 3000, JSON.stringify(users));
+  !isInserted
+    ? () => {
+        console.log('====================================');
+        console.log('cannot insert in the table');
+        console.log('====================================');
+      }
+    :() => {
+        console.log('====================================');
+        console.log('inserted in the table');
+        console.log('====================================');
+      }
+      return ;
+};
