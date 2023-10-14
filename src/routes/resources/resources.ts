@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../../utilities/db';
+import { prisma } from '../../utilities/db.js';
 import { body } from 'express-validator';
-import { handleErrors, isResourceAvailable } from '../../utilities/middlewares';
-import { redisClient } from '../../utilities/redis';
+import { handleErrors, isResourceAvailable } from '../../utilities/middlewares.js';
+import { redisClient } from '../../utilities/redis.js';
 
 const router = Router();
 

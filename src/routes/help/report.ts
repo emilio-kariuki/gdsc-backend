@@ -1,7 +1,6 @@
 import { Router, Request, Response } from "express";
-import { prisma } from "../../utilities/db";
-import { body } from "express-validator";
-import { isReportAvailable } from "../../utilities/middlewares";
+import { prisma } from "../../utilities/db.js";
+import { isReportAvailable } from "../../utilities/middlewares.js";
 
 const router = Router();
 
@@ -26,7 +25,7 @@ router.post("/", async (req: Request, res: Response) => {
 
 //* get all the report
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", async (_req: Request, res: Response) => {
   try {
     const reports = await prisma.report.findMany({
       select: {

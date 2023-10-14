@@ -1,12 +1,11 @@
 import { Request, Response, Router } from 'express';
-import { prisma } from '../../utilities/db';
-import { isUserAvailable } from '../../utilities/middlewares';
-import { firebase } from '../../utilities/firebase';
+import { prisma } from '../../utilities/db.js';
+import { isUserAvailable } from '../../utilities/middlewares.js';
+import { firebase } from '../../utilities/firebase.js';
 import {
 
   redisClient
-} from '../../utilities/redis';
-import { checkRedisHealth } from '../../utilities/redis';
+} from '../../utilities/redis.js';
 
 const router = Router();
 
@@ -87,7 +86,7 @@ router.get('/:id', isUserAvailable, async (req: Request, res: Response) => {
 router.delete('/:id', isUserAvailable, async (req: Request, res: Response) => {
   try {
     const cacheKey = `user_profile:${req.params.id}`;
-    const user = await prisma.user.delete({
+     await prisma.user.delete({
       where: {
         id: req.params.id
       }
@@ -215,7 +214,6 @@ router.get('/leads', async (_req: Request, res: Response) => {
 router.put('/:id', isUserAvailable, async (req: Request, res: Response) => {
   try {
     const cacheKey = `user_profile:${req.params.id}`;
-    const usersKey = `users`;
     const user = await prisma.user.update({
       where: {
         id: req.params.id
@@ -238,20 +236,6 @@ router.put('/:id', isUserAvailable, async (req: Request, res: Response) => {
   }
 });
 
-router.get('/firebase/users', async (_req: Request, res: Response) => {
-  try {
-    const firestore = firebase.firestore();
-    const query = await firestore.collection('event').get();
-    const data = query.docs.map((doc) => doc.data());
-
-    res.json(data);
-  } catch (error) {
-    console.log('====================================');
-    console.log(error);
-    console.log('====================================');
-    res.json(error);
-  }
-});
 
 export default router;
 
@@ -293,5 +277,5 @@ export const fetchUserTable = async (
         console.log('inserted in the table');
         console.log('====================================');
       }
-      return ;
+      return 
 };

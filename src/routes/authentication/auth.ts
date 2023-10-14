@@ -1,8 +1,8 @@
-import { prisma } from "../../utilities/db";
+import { prisma } from "../../utilities/db.js";
 import { Router, Request, Response } from "express";
 import { CourierClient } from "@trycourier/courier";
 import { body } from "express-validator";
-import { handleErrors } from "../../utilities/middlewares";
+import { handleErrors } from "../../utilities/middlewares.js";
 const router = Router();
 
 router.post(

@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../../utilities/db';
+import { prisma } from '../../utilities/db.js';
 import { body } from 'express-validator';
-import { handleErrors, isEventAvailable } from '../../utilities/middlewares';
-import { redisClient } from '../../utilities/redis';
+import { handleErrors, isEventAvailable } from '../../utilities/middlewares.js';
+import { redisClient } from '../../utilities/redis.js';
 
 const router = Router();
 const upcomingKey = 'upcoming';
@@ -238,7 +238,6 @@ router.post(
 
 router.put('/:id', isEventAvailable, async (req: Request, res: Response) => {
   try {
-    const cacheKey = `event:${req.params.id}`;
     const event = await prisma.event.update({
       where: {
         id: req.params.id

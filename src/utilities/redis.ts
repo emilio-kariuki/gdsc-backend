@@ -1,12 +1,19 @@
 import redis from 'redis';
-import { prisma } from './db';
 
 export const redisClient = redis
-  .createClient()
+  .createClient(
+    {
+        password: 'rNdhYhbML0cRb1dlKyhKbYQvWnLPElLy',
+    socket: {
+        host: 'redis-15610.c89.us-east-1-3.ec2.cloud.redislabs.com',
+        port: 15610
+    }
+    }
+  )
   .on('error', (err) => console.log('Redis Client Error', err))
   .connect();
 
-export const checkRedisHealth = async (req: any, res: any, next: any) => {
+export const checkRedisHealth = async (_req: any, res: any, next: any) => {
   const response = await (await redisClient).ping();
 
   !response

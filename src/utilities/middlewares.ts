@@ -1,6 +1,5 @@
 import { validationResult } from 'express-validator';
-import { prisma } from './db';
-import { redisClient } from './redis';
+import { prisma } from './db.js';
 
 export const handleErrors = (req: any, res: any, next: any) => {
   const errors = validationResult(req);

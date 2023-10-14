@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../../utilities/db';
+import { prisma } from '../../utilities/db.js';
 import { body } from 'express-validator';
-import { handleErrors, isGroupAvailable } from '../../utilities/middlewares';
-import { redisClient } from '../../utilities/redis';
+import { handleErrors, isGroupAvailable } from '../../utilities/middlewares.js';
+import { redisClient } from '../../utilities/redis.js';
 
 const router = Router();
 
@@ -167,18 +167,17 @@ router.delete('/:id', isGroupAvailable, async (req: Request, res: Response) => {
       }
     });
 
-    if (!group) {
-      res.status(404).json({
-        ok: true,
-        message: 'error deleting group'
-      });
-    }
-    await (await redisClient).del(groupKey);
-    await refreshGroupTable();
-    res.status(200).json({
-      ok: true,
-      message: 'group deleted successfully'
-    });
+  if ( !group)
+       {res.status(404).json({
+          ok: true,
+          message: 'error deleting group'
+        })}
+        await(await redisClient).del(groupKey);
+        await refreshGroupTable()
+        res.status(200).json({
+          ok: true,
+          message: 'group deleted successfully'
+        }); 
   } catch (error) {
     console.log('====================================');
     console.log(error);

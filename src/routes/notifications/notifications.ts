@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { body } from "express-validator";
-import { handleErrors } from "../../utilities/middlewares";
-import { firebase } from "../../utilities/firebase";
+import { handleErrors } from "../../utilities/middlewares.js";
+import { firebase } from "../../utilities/firebase.js";
 
 const router = Router();
 
@@ -56,7 +56,7 @@ router.post(
           body: req.body.content,
         },
 
-        topic: "announcement",
+        topic: "announcements",
       };
       const notification = await firebase.messaging().send(message);
       !notification
@@ -108,6 +108,21 @@ router.post(
     }
   }
 );
+
+router.get('/', async (_req: Request, res: Response) => {
+  try {
+    const firestore = firebase.firestore();
+    const query = await firestore.collection('event').get();
+    const data = query.docs.map((doc) => doc.data());
+
+    res.json(data);
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
+    res.json(error);
+  }
+});
 
 export default router;
 

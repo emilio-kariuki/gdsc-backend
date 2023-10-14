@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
-import { prisma } from "../../utilities/db";
-import { isFeedbackAvailable } from "../../utilities/middlewares";
+import { prisma } from "../../utilities/db.js";
+import { isFeedbackAvailable } from "../../utilities/middlewares.js";
 import { CourierClient } from "@trycourier/courier";
 
 const router = Router();

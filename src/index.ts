@@ -1,16 +1,15 @@
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
-import UserRouter from './routes/user/user';
-import EventRouter from './routes/event/event';
-import GroupRouter from './routes/group/group';
-import SpaceRouter from './routes/space/space';
-import ReportRouter from './routes/help/report';
-import FeedbackRouter from './routes/help/feedback';
-import ResourceRouter from './routes/resources/resources';
-import NotificationRouter from './routes/notifications/notifications';
-import AuthRouter from './routes/authentication/auth';
-// import { eventJob, completeEvent } from "./cron_jobs/crons";
+import UserRouter from './routes/user/user.js';
+import EventRouter from './routes/event/event.js';
+import GroupRouter from './routes/group/group.js';
+import SpaceRouter from './routes/space/space.js';
+import ReportRouter from './routes/help/report.js';
+import FeedbackRouter from './routes/help/feedback.js';
+import ResourceRouter from './routes/resources/resources.js';
+import NotificationRouter from './routes/notifications/notifications.js';
+import AuthRouter from './routes/authentication/auth.js';
 import dotenv from 'dotenv';
 
 
@@ -18,7 +17,7 @@ dotenv.config();
 
 const app = express();
 
-const port = 4000;
+const port = 3000;
 
 process.env.PORT = port.toString();
 
@@ -39,7 +38,7 @@ app.all('/', (_req, res) => {
 // eventJob.start();
 // completeEvent.start();
 
-app.use('/user', UserRouter);
+// app.use('/user', UserRouter);
 app.use('/event', EventRouter);
 app.use('/group', GroupRouter);
 app.use('/twitter', SpaceRouter);

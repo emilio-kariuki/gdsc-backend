@@ -1,50 +1,21 @@
-# syntax = docker/dockerfile:1
+FROM node:18-alpine
 
-# Adjust BUN_VERSION as desired
-ARG BUN_VERSION=1.0.0
-FROM oven/bun:${BUN_VERSION} as base
+ENV DATABASE_URL=postgres://test_t425_user:sTa9J0NgwkIUOQfYwLOjP8KCGIZJl3tD@dpg-ckim804e1qns738e68l0-a.oregon-postgres.render.com/test_t425 \
+    PORT=3000
 
-LABEL fly_launch_runtime="Bun/Prisma"
 
-# Bun/Prisma app lives here
+RUN npm install -g pnpm
+
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV="production"
+COPY . .
+
+RUN pnpm install
+
+RUN pnpm build
+
+EXPOSE 3000
+
+CMD ["pnpm", "start"]
 
 
-# Throw-away build stage to reduce size of final image
-FROM base as build
-
-# Install packages needed to build node modules
-RUN apt-get update -qq && \
-    apt-get install -y build-essential openssl pkg-config python-is-python3
-
-# Install node modules
-COPY --link bun.lockb package-lock.json package.json ./
-RUN bun install --ci
-
-# Generate Prisma Client
-# COPY --link prisma .
-COPY prisma ./prisma/
-RUN bun prisma generate
-RUN bun postinstall
-
-# Copy application code
-COPY --link . .
-
-
-# Final stage for app image
-FROM base
-
-# Install packages needed for deployment
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y openssl && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Copy built application
-COPY --from=build /app /app
-
-# Start the server by default, this can be overwritten at runtime
-EXPOSE 4000
-CMD [ "bun", "start" ]
