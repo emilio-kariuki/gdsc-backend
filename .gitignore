@@ -30,6 +30,8 @@ lib-cov
 coverage
 \*.lcov
 
+src/server.json
+
 # nyc test coverage
 
 .nyc_output

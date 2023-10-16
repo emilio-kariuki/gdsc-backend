@@ -56,6 +56,21 @@ export const isUserAvailable = async (req: any, res: any, next: any) => {
     : next();
 };
 
+export const isEmailAvailable = async (req: any, res: any, next: any) => {
+  const group = await prisma.user.findUnique({
+    where: {
+      id: req.body.email
+    }
+  });
+
+  !group
+    ? res.status(400).json({
+        ok: true,
+        message: 'user does not exist'
+      })
+    : next();
+};
+
 export const isResourceAvailable = async (req: any, res: any, next: any) => {
   const group = await prisma.resources.findUnique({
     where: {

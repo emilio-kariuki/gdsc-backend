@@ -1,50 +1,20 @@
+
 {
   "compilerOptions": {
-    "lib": ["ESNext"],
-    "module": "esnext",
-    "target": "esnext",
-    "moduleResolution": "bundler",
-    "moduleDetection": "force",
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "composite": true,
-    "strict": true,
+    "sourceMap": true,
     "outDir": "./dist/",
     "rootDir": "./src/",
-    "downlevelIteration": true,
-    "skipLibCheck": true,
-    "jsx": "preserve",
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowJs": true,
-    "types": [
-      "bun-types" // add Bun global
-    ],
-    
+    "strict": true,
+    "lib": ["ES2016", "ESNext.AsyncIterable"],
+    "esModuleInterop": true,
+    "target": "ESNext",
+    "noEmit" :false,
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true
+
   },
-  "include": ["./src/**/*.ts","./src/**/*.json" ],
+  "include": ["./src/**/*.ts"],
   "exclude": ["node_modules"]
 }
-
-// {
-//   "compilerOptions": {
-//     "sourceMap": true,
-//     "outDir": "./dist/",
-//     "rootDir": "./src/",
-//     "strict": true,
-//     "lib": ["ES2016", "ESNext.AsyncIterable"],
-//     "esModuleInterop": true,
-//     "target": "ESNext",
-//     // "allowImportingTsExtensions": true,
-//     "noEmit" :false,
-//     "moduleResolution": "node",
-//     "noUnusedLocals": true,
-//     "noUnusedParameters": true,
-//     "resolveJsonModule": true
-
-//   },
-//   "include": ["./src/**/*.ts"],
-//   "exclude": ["node_modules"]
-
- 
-// }

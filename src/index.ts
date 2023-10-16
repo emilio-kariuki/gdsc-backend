@@ -8,7 +8,7 @@ import SpaceRouter from './routes/space/space.js';
 import ReportRouter from './routes/help/report.js';
 import FeedbackRouter from './routes/help/feedback.js';
 import ResourceRouter from './routes/resources/resources.js';
-import NotificationRouter from './routes/notifications/notifications.js';
+// import NotificationRouter from './routes/notifications/notifications.js';
 import AuthRouter from './routes/authentication/auth.js';
 import dotenv from 'dotenv';
 
@@ -38,14 +38,14 @@ app.all('/', (_req, res) => {
 // eventJob.start();
 // completeEvent.start();
 
-// app.use('/user', UserRouter);
+app.use('/user', UserRouter);
 app.use('/event', EventRouter);
 app.use('/group', GroupRouter);
 app.use('/twitter', SpaceRouter);
 app.use('/report', ReportRouter);
 app.use('/feedback', FeedbackRouter);
 app.use('/resource', ResourceRouter);
-app.use('/notification', NotificationRouter);
+// app.use('/notification', NotificationRouter);
 app.use('/auth', AuthRouter);
 
 app.listen(port, () => {

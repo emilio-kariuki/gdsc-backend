@@ -2,7 +2,8 @@ import { prisma } from "../../utilities/db.js";
 import { Router, Request, Response } from "express";
 import { CourierClient } from "@trycourier/courier";
 import { body } from "express-validator";
-import { handleErrors } from "../../utilities/middlewares.js";
+import { handleErrors, isEmailAvailable, isUserAvailable } from "../../utilities/middlewares.js";
+import { redisClient } from "../../utilities/redis.js";
 const router = Router();
 
 router.post(
@@ -10,6 +11,7 @@ router.post(
   body("email").isString(),
   body("password").isString(),
   handleErrors,
+isEmailAvailable,
   async (req: Request, res: Response) => {
     try {
       const user = await prisma.user.findUnique({
@@ -40,7 +42,6 @@ router.post(
     } catch (error) {
       console.log("====================================");
       console.log(error);
-      console.log("====================================");
     }
   }
 );
@@ -51,21 +52,10 @@ router.post(
   body("email").isString(),
   body("password").isString(),
   handleErrors,
+isEmailAvailable,
   async (req: Request, res: Response) => {
     try {
-      const isExists = await prisma.user.findUnique({
-        where: {
-          email: req.body.email,
-        },
-      });
-
-      if (isExists) {
-        res.status(200).json({
-          ok: true,
-          message: "user already exists in the database",
-        });
-        return;
-      }
+     
       const user = await prisma.user.create({
         data: {
           email: req.body.email,
@@ -85,9 +75,12 @@ router.post(
           })
       }
       await sendEmail(req.body.email);
+      const cacheKey = `users`;
+      await(await redisClient).del(cacheKey);
       res.status(200).json({
         ok: true,
-        message: {
+        message: 'user created successfully',
+        data:{
           id: user.id,
           email: user.email,
         },
