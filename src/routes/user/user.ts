@@ -1,7 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { prisma } from '../../utilities/db.js';
 import { isUserAvailable } from '../../utilities/middlewares.js';
-// import { firebase } from '../../utilities/firebase.js';
 import {
 
   redisClient

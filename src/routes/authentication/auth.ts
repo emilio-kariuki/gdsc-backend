@@ -2,7 +2,7 @@ import { prisma } from "../../utilities/db.js";
 import { Router, Request, Response } from "express";
 import { CourierClient } from "@trycourier/courier";
 import { body } from "express-validator";
-import { handleErrors, isEmailAvailable, isUserAvailable } from "../../utilities/middlewares.js";
+import { handleErrors, isEmailAvailable } from "../../utilities/middlewares.js";
 import { redisClient } from "../../utilities/redis.js";
 const router = Router();
 
