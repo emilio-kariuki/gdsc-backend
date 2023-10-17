@@ -10,9 +10,8 @@
     "target": "ESNext",
     "noEmit" :false,
     "moduleResolution": "node",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noFallthroughCasesInSwitch": true,
 
   },
   "include": ["./src/**/*.ts"],

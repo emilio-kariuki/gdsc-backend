@@ -1,84 +1,106 @@
-// import { CronJob } from "cron";
-// import { prisma } from "../utilities/db.js";
-// // import { firebase } from "../utilities/firebase.js";
+import { CronJob } from 'cron';
+import { prisma } from '../utilities/db.js';
+import { firebase } from '../utilities/firebase.js';
+import { redisClient } from '../utilities/redis.js';
 
-// export const eventJob = new CronJob(
-//   "*/10 * * * * *",
-//   async function () {
-//     const events = await prisma.event.findMany({
-//       where: {
-//         isCompleted: false,
-//       },
-//     });
-//     for (const event of events) {
-//       const title = event.name;
-//       const minutes = await eventMinutes(event);
-//       if (minutes === 1 || minutes === 60) {
-//         try {
-//           const message = {
-//             notification: {
-//               title: "Your Event is about to start in " + ` ${minutes} minutes`,
-//               body: title,
-//             },
-//           };
-//           const response = await firebase
-//             .messaging()
-//             .sendToTopic("tedting_cron", message);
+const upcomingKey = 'upcoming';
+export const eventJob = new CronJob(
+  '*/60 * * * * *',
+  async function () {
+    let events;
+    const cachedData = await (await redisClient).get(upcomingKey);
 
-//           console.log("Successfully sent message:" + response);
-//         } catch (e) {
-//           console.log("error", e);
-//         }
-//       }
-//     }
-//   },
-//   null,
-//   true,
-//   "America/Los_Angeles"
-// );
+    if (cachedData) {
+      events = JSON.parse(cachedData);
+      console.log('====================================');
+      console.log('from cache');
+      console.log('====================================');
+    } else {
+      events = await prisma.event.findMany({
+        where: {
+          isCompleted: false
+        }
+      });
+      await (
+        await redisClient
+      ).setEx(upcomingKey, 86400, JSON.stringify(events));
+    }
+    for (const event of events) {
+      const title = event.name;
+      const minutes = await eventMinutes(event);
+      if (minutes === 1 || minutes === 60) {
+        try {
+          const message = {
+            notification: {
+              title: "Your event will start " + minutes + " minutes",
+              body: title
+            },
+            android: {
+              notification: {
+                imageUrl: event.image
+              }
+            },
+            topic: 'onesignal',
+          };
+          const response = await firebase
+            .messaging()
+            .send(message);
+            
 
-// export const completeEvent = new CronJob("1 * * * * *", async function () {
-//   const events = await prisma.event.findMany({
-//     where: {
-//       isCompleted: false,
-//     },
-//   });
-//   for (const event of events) {
-//     const id = event.id;
-//     const minutes = await eventMinutes(event);
-//     if (minutes === -119) {
-//       try {
-//         const eventUpdate = await prisma.event.update({
-//           where: {
-//             id: id,
-//           },
-//           data: {
-//             isCompleted: true,
-//           },
-//         });
+          console.log('Successfully sent message:' + response);
+        } catch (e) {
+          console.log('error', e);
+        }
+      }
+    }
+  },
+  null,
+  true,
+  'America/Los_Angeles'
+);
 
-//         !eventUpdate
-//           ? console.log("event failed to complete")
-//           : console.log("event completed successfully");
-//       } catch (e) {
-//         console.log("error", e);
-//       }
-//     }
-//   }
-// });
+export const completeEvent = new CronJob('1 * * * * *', async function () {
+  const events = await prisma.event.findMany({
+    where: {
+      isCompleted: false
+    }
+  });
+  for (const event of events) {
+    const id = event.id;
+    const minutes = await eventMinutes(event);
+    if (minutes === -119) {
+      try {
+        const eventUpdate = await prisma.event.update({
+          where: {
+            id: id
+          },
+          data: {
+            isCompleted: true
+          }
+        });
 
-// async function eventMinutes(event: any) {
-//   const date = new Date(event.date);
+        !eventUpdate
+          ? console.log('event failed to complete')
+          : console.log('event completed successfully');
+      } catch (e) {
+        console.log('error', e);
+      }
+    }
+  }
+});
 
-//   const currentTime = new Date();
-//   currentTime.setHours(currentTime.getHours());
+async function eventMinutes(event: any) {
+  const date = new Date(event.date);
 
-//   const eventTimeTimestamp = date.getTime();
-//   const currentTimeTimestamp = currentTime.getTime();
+  const currentTime = new Date();
+  currentTime.setHours(currentTime.getHours());
 
-//   const difference = eventTimeTimestamp - currentTimeTimestamp;
+  const eventTimeTimestamp = date.getTime();
+  const currentTimeTimestamp = currentTime.getTime();
 
-//   const minutes = Math.ceil(difference / (1000 * 60));
-//   console.log("the event is in " + minutes + " minutes");
-//   return minutes;
-// }
+  const difference = eventTimeTimestamp - currentTimeTimestamp;
+
+  const minutes = Math.ceil(difference / (1000 * 60));
+  console.log(`the event + ${event.name} + is in ` + minutes + ' minutes');
+  return minutes;
+}
