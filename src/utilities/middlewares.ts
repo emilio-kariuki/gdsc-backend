@@ -21,7 +21,7 @@ export const isEventAvailable = async (req: any, res: any, next: any) => {
   !group
     ? res.status(400).json({
         ok: true,
-        message: 'event does not exist'
+        message: 'event exist\'s'
       })
     : next();
 };
@@ -36,22 +36,22 @@ export const isGroupAvailable = async (req: any, res: any, next: any) => {
   !group
     ? res.status(400).json({
         ok: true,
-        message: 'group does not exist'
+        message: 'group exist\'s'
       })
     : next();
 };
 
 export const isUserAvailable = async (req: any, res: any, next: any) => {
-  const group = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       id: req.params.id
     }
   });
 
-  !group
+  !user
     ? res.status(400).json({
         ok: true,
-        message: 'user does not exist'
+        message: 'user doesexist\'ss'
       })
     : next();
 };
@@ -66,7 +66,7 @@ export const isEmailAvailable = async (req: any, res: any, next: any) => {
   !group
     ? res.status(400).json({
         ok: true,
-        message: 'user does not exist'
+        message: 'user exist\'s'
       })
     : next();
 };
@@ -81,7 +81,7 @@ export const isResourceAvailable = async (req: any, res: any, next: any) => {
   !group
     ? res.status(400).json({
         ok: true,
-        message: 'resource does not exist'
+        message: 'resource exist\'s'
       })
     : next();
 };
@@ -96,7 +96,7 @@ export const isSpaceAvailable = async (req: any, res: any, next: any) => {
   !group
     ? res.status(400).json({
         ok: true,
-        message: 'space does not exist'
+        message: 'space exist\'s'
       })
     : next();
 };
@@ -111,7 +111,7 @@ export const isReportAvailable = async (req: any, res: any, next: any) => {
   !group
     ? res.status(400).json({
         ok: true,
-        message: 'report does not exist'
+        message: 'report exist\'s'
       })
     : next();
 };
@@ -126,7 +126,7 @@ export const isFeedbackAvailable = async (req: any, res: any, next: any) => {
   !group
     ? res.status(400).json({
         ok: true,
-        message: 'feedback does not exist'
+        message: 'feedback exist\'s'
       })
     : next();
 };
