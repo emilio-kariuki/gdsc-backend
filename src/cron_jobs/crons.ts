@@ -4,17 +4,17 @@ import { firebase } from '../utilities/firebase.js';
 import { redisClient } from '../utilities/redis.js';
 
 const upcomingKey = 'upcoming';
+const promises: Promise<void>[] = [];
+
+
 export const eventJob = new CronJob(
-  '*/60 * * * * *',
+  '*/61 * * * * *',
   async function () {
     let events;
     const cachedData = await (await redisClient).get(upcomingKey);
 
     if (cachedData) {
       events = JSON.parse(cachedData);
-      console.log('====================================');
-      console.log('from cache');
-      console.log('====================================');
     } else {
       events = await prisma.event.findMany({
         where: {
@@ -27,12 +27,18 @@ export const eventJob = new CronJob(
     }
     for (const event of events) {
       const title = event.name;
+      console.log('====================================');
+      console.log("called here");
+      console.log('====================================');
       const minutes = await eventMinutes(event);
       if (minutes === 1 || minutes === 60) {
+        console.log('====================================');
+        console.log('this is the inside part of the messaging');
+        console.log('====================================');
         try {
           const message = {
             notification: {
-              title: "Your event will start " + minutes + " minutes",
+              title: 'Your event will start in ' + minutes + ' minutes',
               body: title
             },
             android: {
@@ -40,12 +46,9 @@ export const eventJob = new CronJob(
                 imageUrl: event.image
               }
             },
-            topic: 'onesignal',
+            topic: 'onesignal'
           };
-          const response = await firebase
-            .messaging()
-            .send(message);
-            
+          const response = await firebase.messaging().send(message);
 
           console.log('Successfully sent message:' + response);
         } catch (e) {
@@ -53,47 +56,60 @@ export const eventJob = new CronJob(
         }
       }
     }
+    await Promise.all(promises);
   },
   null,
   true,
   'America/Los_Angeles'
 );
 
-export const completeEvent = new CronJob('1 * * * * *', async function () {
+export const completeEvent = new CronJob('*/60 * * * * *', async function () {
+  console.log('====================================');
+  console.log('running a task every minute');
+  console.log('====================================');
+  
   const events = await prisma.event.findMany({
     where: {
       isCompleted: false
     }
   });
   for (const event of events) {
-    const id = event.id;
-    const minutes = await eventMinutes(event);
-    if (minutes === -119) {
-      try {
-        const eventUpdate = await prisma.event.update({
-          where: {
-            id: id
+    const title = event.name;
+    const minutesPromise = eventMinutes(event);
+  
+    promises.push(minutesPromise.then(minutes => {
+      if (minutes === 1 || minutes === 60) {
+        const message = {
+          notification: {
+            title: `Your event will start in ${minutes} minutes`,
+            body: title,
           },
-          data: {
-            isCompleted: true
-          }
-        });
-
-        !eventUpdate
-          ? console.log('event failed to complete')
-          : console.log('event completed successfully');
-      } catch (e) {
-        console.log('error', e);
+          android: {
+            notification: {
+              imageUrl: event.image,
+            },
+          },
+          topic: 'onesignal',
+        };
+  
+        return firebase.messaging().send(message)
+          .then(response => {
+            console.log('Successfully sent message:', response);
+          })
+          .catch(e => {
+            console.log('error', e);
+          });
       }
-    }
+    }));
   }
+
 });
 
 async function eventMinutes(event: any) {
   const date = new Date(event.date);
 
   const currentTime = new Date();
-  currentTime.setHours(currentTime.getHours());
+  currentTime.setHours(currentTime.getHours() + 3 );
 
   const eventTimeTimestamp = date.getTime();
   const currentTimeTimestamp = currentTime.getTime();
@@ -104,3 +120,6 @@ async function eventMinutes(event: any) {
   console.log(`the event + ${event.name} + is in ` + minutes + ' minutes');
   return minutes;
 }
+
+
+

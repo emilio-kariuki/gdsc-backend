@@ -51,10 +51,42 @@ export const isUserAvailable = async (req: any, res: any, next: any) => {
   !user
     ? res.status(400).json({
         ok: true,
-        message: 'user doesexist\'ss'
+        message: 'user does not exist\'s'
       })
     : next();
 };
+
+export const isAlreadyAdmin = async(req: any, res: any, next: any)=>{
+  const user = await prisma.user.findUnique({
+    where: {
+      id: req.params.id,
+      isAdmin: true
+    },
+  })
+
+  !user
+    ?next()
+    : res.status(400).json({
+      ok: true,
+      message: 'user is already an admin'
+    })
+}
+
+export const isRemovedAdmin = async(req: any, res: any, next: any)=>{
+  const user = await prisma.user.findUnique({
+    where: {
+      id: req.params.id,
+      isAdmin: false
+    },
+  })
+
+  !user
+    ?next()
+    : res.status(400).json({
+      ok: true,
+      message: 'user is already removed as admin'
+    })
+}
 
 export const isEmailAvailable = async (req: any, res: any, next: any) => {
   const group = await prisma.user.findUnique({

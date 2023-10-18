@@ -2,15 +2,20 @@ import { Router, Request, Response } from "express";
 import { body } from "express-validator";
 import { handleErrors } from "../../utilities/middlewares.js";
 import { firebase } from "../../utilities/firebase.js";
+import OneSignal from "@onesignal/node-onesignal";
+
+
 
 const router = Router();
 
 
+
 router.post(
-  "/event",
+  "/",
   body("name").isString(),
   body("content").isString(),
   body("image").isString(),
+  body('topic').isString(),
   handleErrors,
   async (req: Request, res: Response) => {
     try {
@@ -24,7 +29,7 @@ router.post(
             imageUrl: req.body.image,
           },
         },
-        topic: "onesignal",
+        topic:req.body.topic,
       };
       const notification = await firebase.messaging().send(message);
       !notification
@@ -43,71 +48,6 @@ router.post(
   }
 );
 
-router.post(
-  "/announcement",
-  body("name").isString(),
-  body("content").isString(),
-  handleErrors,
-  async (req: Request, res: Response) => {
-    try {
-      const message = {
-        notification: {
-          title: req.body.name,
-          body: req.body.content,
-        },
-
-        topic: "announcements",
-      };
-      const notification = await firebase.messaging().send(message);
-      !notification
-        ? res
-            .status(500)
-            .json("announcement notification service encountered error")
-        : res.status(200).json({
-            ok: true,
-            message: "announcement notification sent successfully",
-          });
-    } catch (error) {
-      console.log("====================================");
-      console.log(error);
-      console.log("====================================");
-      res.status(500).json(error)
-
-    }
-  }
-);
-
-router.post(
-  "/updates",
-  body("name").isString(),
-  body("content").isString(),
-  handleErrors,
-  async (req: Request, res: Response) => {
-    try {
-      const message = {
-        notification: {
-          title: req.body.name,
-          body: req.body.content,
-        },
-
-        topic: "updates",
-      };
-      const notification = await firebase.messaging().send(message);
-      !notification
-        ? res.status(500).json("updates notification service encountered error")
-        : res.status(200).json({
-            ok: true,
-            message: "updates notification sent successfully",
-          });
-    } catch (error) {
-      console.log("====================================");
-      console.log(error);
-      console.log("====================================");
-      res.status(500).json(error)
-
-    }
-  }
-);
 
 router.get('/users', async (_req: Request, res: Response) => {
   try {

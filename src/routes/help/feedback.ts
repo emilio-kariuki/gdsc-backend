@@ -1,11 +1,18 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../../utilities/db.js";
-import { isFeedbackAvailable } from "../../utilities/middlewares.js";
+import { handleErrors, isFeedbackAvailable } from "../../utilities/middlewares.js";
 import { CourierClient } from "@trycourier/courier";
+import { body } from "express-validator";
 
 const router = Router();
 
-router.post("/", async (req: Request, res: Response) => {
+router.post("/create/", 
+ body('name').isString(),
+ body('email').isString(),
+ body("content").isString(),
+ body('token').isString(),
+ handleErrors,
+ async (req: Request, res: Response) => {
   try {
     const feedback = await prisma.feedback.create({
       data: {
@@ -46,7 +53,7 @@ router.get("/", async (_req: Request, res: Response) => {
 
 //* update a feedback
 
-router.put("/:id", isFeedbackAvailable, async (req: Request, res: Response) => {
+router.put("/update/:id", isFeedbackAvailable, async (req: Request, res: Response) => {
   try {
     const feedback = await prisma.feedback.update({
       where: {
@@ -71,7 +78,7 @@ router.put("/:id", isFeedbackAvailable, async (req: Request, res: Response) => {
 //* delete a feedback
 
 router.delete(
-  "/:id",
+  "/delete/:id",
   isFeedbackAvailable,
   async (req: Request, res: Response) => {
     try {

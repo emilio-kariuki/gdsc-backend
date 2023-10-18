@@ -82,7 +82,7 @@ router.get('/:id', isGroupAvailable, async (req: Request, res: Response) => {
 //* create a group
 
 router.post(
-  '/',
+  '/create/',
   body('name').isString(),
   body('link').isString(),
   body('image').isString(),
@@ -117,7 +117,7 @@ router.post(
 
 //* update a group
 
-router.put('/:id', isGroupAvailable, async (req: Request, res: Response) => {
+router.put('/update/:id', isGroupAvailable, async (req: Request, res: Response) => {
   try {
     const groupKey = `group:${req.params.id}`;
 
@@ -158,7 +158,7 @@ router.put('/:id', isGroupAvailable, async (req: Request, res: Response) => {
 
 //* delete a group
 
-router.delete('/:id', isGroupAvailable, async (req: Request, res: Response) => {
+router.delete('/delete/:id', isGroupAvailable, async (req: Request, res: Response) => {
   try {
     const groupKey = `group:${req.params.id}`;
     const group = await prisma.groups.delete({

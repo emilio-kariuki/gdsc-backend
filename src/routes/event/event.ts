@@ -182,7 +182,7 @@ router.get('/search/past/:query', async (req: Request, res: Response) => {
 //* create an event
 
 router.post(
-  '/',
+  '/create',
   body('name').isString(),
   body('description').isString(),
   body('venue').isString(),
@@ -236,7 +236,7 @@ router.post(
 
 //* update an event
 
-router.put('/:id', isEventAvailable, async (req: Request, res: Response) => {
+router.put('update/:id', isEventAvailable, async (req: Request, res: Response) => {
   try {
     const event = await prisma.event.update({
       where: {
@@ -353,7 +353,7 @@ router.put(
 
 //* delete an event
 
-router.delete('/:id', isEventAvailable, async (req: Request, res: Response) => {
+router.delete('remove/:id', isEventAvailable, async (req: Request, res: Response) => {
   try {
     const event = await prisma.event.delete({
       where: {

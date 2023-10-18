@@ -12,6 +12,8 @@ import NotificationRouter from './routes/notifications/notifications.js';
 import AuthRouter from './routes/authentication/auth.js';
 import dotenv from 'dotenv';
 import { eventJob, completeEvent } from './cron_jobs/crons.js';
+import swaggerUi from 'swagger-ui-express';
+import {swagger} from './utilities/swagger.js';
 
 dotenv.config();
 
@@ -36,7 +38,7 @@ app.all('/', (_req, res) => {
 });
 
 eventJob.start();
-completeEvent.start();
+// completeEvent.start();
 
 app.use('/user', UserRouter);
 app.use('/event', EventRouter);
@@ -47,6 +49,7 @@ app.use('/feedback', FeedbackRouter);
 app.use('/resource', ResourceRouter);
 app.use('/notification', NotificationRouter);
 app.use('/auth', AuthRouter);
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swagger));
 
 app.listen(port, () => {
   console.log('Server on port', port);

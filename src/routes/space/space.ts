@@ -9,7 +9,7 @@ const router = Router();
 //* create a twitter space
 
 router.post(
-  '/',
+  '/create/',
   body('name').isString(),
   body('link').isString(),
   body('image').isString(),
@@ -114,7 +114,7 @@ router.get('/:id', isSpaceAvailable, async (req: Request, res: Response) => {
 
 //* update a twitter space
 
-router.put('/:id', isSpaceAvailable, async (req: Request, res: Response) => {
+router.put('/update/:id', isSpaceAvailable, async (req: Request, res: Response) => {
   try {
     const cacheKey = `space_data:${req.params.id}`;
     const spaceKey = 'space';
@@ -157,7 +157,7 @@ router.put('/:id', isSpaceAvailable, async (req: Request, res: Response) => {
 
 //* delete a twitter space
 
-router.delete('/:id', isSpaceAvailable, async (req: Request, res: Response) => {
+router.delete('/delete/:id', isSpaceAvailable, async (req: Request, res: Response) => {
   try {
     const cacheKey = `space_data:${req.params.id}`;
     const spaceKey = 'space';

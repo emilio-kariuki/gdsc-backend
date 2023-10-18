@@ -118,7 +118,7 @@ router.get('/:id', isResourceAvailable, async (req: Request, res: Response) => {
 //* create a resource
 
 router.post(
-  '/',
+  '/create/',
   body('name').isString(),
   body('link').isString(),
   body('image').isString(),
@@ -164,7 +164,7 @@ router.post(
 // TODO asafasdf
 //* update a resource
 
-router.put('/:id', isResourceAvailable, async (req: Request, res: Response) => {
+router.put('/update/:id', isResourceAvailable, async (req: Request, res: Response) => {
   try {
     const resourceKey = `resource:${req.params.id}`;
     const resource = await prisma.resources.update({
@@ -268,7 +268,7 @@ router.put(
 //* delete a resourcee
 
 router.delete(
-  '/:id',
+  '/delete/:id',
   isResourceAvailable,
   async (req: Request, res: Response) => {
     try {

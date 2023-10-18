@@ -72,6 +72,9 @@ model groups {
 model report {
   id        String   @id @default(cuid())
   name      String
+  email     String
+  content   String
+  token     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -80,6 +83,8 @@ model feedback {
   id        String   @id @default(cuid())
   name      String
   email     String
+  content   String
+  token     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
