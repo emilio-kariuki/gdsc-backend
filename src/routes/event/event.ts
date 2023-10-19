@@ -236,7 +236,7 @@ router.post(
 
 //* update an event
 
-router.put('update/:id', isEventAvailable, async (req: Request, res: Response) => {
+router.put('/update/:id', isEventAvailable, async (req: Request, res: Response) => {
   try {
     const event = await prisma.event.update({
       where: {
@@ -353,7 +353,7 @@ router.put(
 
 //* delete an event
 
-router.delete('remove/:id', isEventAvailable, async (req: Request, res: Response) => {
+router.delete('/remove/:id', isEventAvailable, async (req: Request, res: Response) => {
   try {
     const event = await prisma.event.delete({
       where: {
