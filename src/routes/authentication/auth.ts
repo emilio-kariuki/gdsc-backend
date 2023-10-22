@@ -52,7 +52,6 @@ router.post(
   body('email').isString(),
   body('password').isString(),
   handleErrors,
-  isEmailAvailable,
   async (req: Request, res: Response) => {
     try {
       const user = await prisma.user.create({
