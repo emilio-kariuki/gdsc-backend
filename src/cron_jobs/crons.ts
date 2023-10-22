@@ -6,7 +6,6 @@ import { redisClient } from '../utilities/redis.js';
 const upcomingKey = 'upcoming';
 const promises: Promise<void>[] = [];
 
-
 export const eventJob = new CronJob(
   '*/61 * * * * *',
   async function () {
@@ -27,14 +26,9 @@ export const eventJob = new CronJob(
     }
     for (const event of events) {
       const title = event.name;
-      console.log('====================================');
-      console.log("called here");
-      console.log('====================================');
+
       const minutes = await eventMinutes(event);
       if (minutes === 1 || minutes === 60) {
-        console.log('====================================');
-        console.log('this is the inside part of the messaging');
-        console.log('====================================');
         try {
           const message = {
             notification: {
@@ -64,10 +58,6 @@ export const eventJob = new CronJob(
 );
 
 export const completeEvent = new CronJob('*/60 * * * * *', async function () {
-  console.log('====================================');
-  console.log('running a task every minute');
-  console.log('====================================');
-  
   const events = await prisma.event.findMany({
     where: {
       isCompleted: false
@@ -76,40 +66,43 @@ export const completeEvent = new CronJob('*/60 * * * * *', async function () {
   for (const event of events) {
     const title = event.name;
     const minutesPromise = eventMinutes(event);
-  
-    promises.push(minutesPromise.then(minutes => {
-      if (minutes === 1 || minutes === 60) {
-        const message = {
-          notification: {
-            title: `Your event will start in ${minutes} minutes`,
-            body: title,
-          },
-          android: {
-            notification: {
-              imageUrl: event.image,
-            },
-          },
-          topic: 'onesignal',
-        };
-  
-        return firebase.messaging().send(message)
-          .then(response => {
-            console.log('Successfully sent message:', response);
-          })
-          .catch(e => {
-            console.log('error', e);
-          });
-      }
-    }));
-  }
 
+    promises.push(
+      minutesPromise.then((minutes) => {
+        if (minutes === 1 || minutes === 60) {
+          const message = {
+            notification: {
+              title: `Your event will start in ${minutes} minutes`,
+              body: title
+            },
+            android: {
+              notification: {
+                imageUrl: event.image
+              }
+            },
+            topic: 'onesignal'
+          };
+
+          return firebase
+            .messaging()
+            .send(message)
+            .then((response) => {
+              console.log('Successfully sent message:', response);
+            })
+            .catch((e) => {
+              console.log('error', e);
+            });
+        }
+      })
+    );
+  }
 });
 
 async function eventMinutes(event: any) {
   const date = new Date(event.date);
 
   const currentTime = new Date();
-  currentTime.setHours(currentTime.getHours() + 3 );
+  currentTime.setHours(currentTime.getHours() + 3);
 
   const eventTimeTimestamp = date.getTime();
   const currentTimeTimestamp = currentTime.getTime();
@@ -120,6 +113,3 @@ async function eventMinutes(event: any) {
   console.log(`the event + ${event.name} + is in ` + minutes + ' minutes');
   return minutes;
 }
-
-
-
