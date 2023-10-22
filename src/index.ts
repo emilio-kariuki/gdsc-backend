@@ -38,7 +38,7 @@ app.all('/', (_req, res) => {
 });
 
 eventJob.start();
-// completeEvent.start();
+completeEvent.start();
 
 app.use('/user', UserRouter);
 app.use('/event', EventRouter);
