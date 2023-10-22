@@ -3,11 +3,7 @@ import redis from 'redis';
 export const redisClient = redis
   .createClient(
     {
-        password: 'rNdhYhbML0cRb1dlKyhKbYQvWnLPElLy',
-    socket: {
-        host: 'redis-15610.c89.us-east-1-3.ec2.cloud.redislabs.com',
-        port: 15610
-    }
+      url : "redis://default:38655a0591ff429eb66122f0361aa26c@us1-enough-sailfish-41406.upstash.io:41406"
     }
   )
   .on('error', (err) => console.log('Redis Client Error', err))
