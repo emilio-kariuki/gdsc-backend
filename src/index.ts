@@ -13,15 +13,13 @@ import AuthRouter from './routes/authentication/auth.js';
 import dotenv from 'dotenv';
 import { eventJob, completeEvent } from './cron_jobs/crons.js';
 import swaggerUi from 'swagger-ui-express';
-import {swagger} from './utilities/swagger.js';
+import { swagger } from './utilities/swagger.js';
 
 dotenv.config();
 
 export const app = express();
 
-const port = 3000;
-
-process.env.PORT = port.toString();
+const port = process.env.PORT;
 
 app.use(morgan('dev'));
 app.use(express.json());
@@ -34,8 +32,13 @@ app.use(
 );
 
 app.all('/', (_req, res) => {
-  res.send('Hello World!');
+  res.status(200).json({
+    ok: true,
+    message: 'welcome to gdsc backend'
+  });
 });
+
+
 
 eventJob.start();
 completeEvent.start();
@@ -50,6 +53,13 @@ app.use('/resource', ResourceRouter);
 app.use('/notification', NotificationRouter);
 app.use('/auth', AuthRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swagger));
+
+app.all('*', (req, res) => {
+  res.status(200).json({
+    ok: true,
+    message: 'the called route does not exist'
+  });
+});
 
 app.listen(port, () => {
   console.log('Server on port', port);

@@ -1,6 +1,10 @@
 import { Request, Response, Router } from 'express';
 import { prisma } from '../../utilities/db.js';
-import { isAlreadyAdmin, isRemovedAdmin, isUserAvailable } from '../../utilities/middlewares.js';
+import {
+  isAlreadyAdmin,
+  isRemovedAdmin,
+  isUserAvailable
+} from '../../utilities/middlewares.js';
 import { redisClient } from '../../utilities/redis.js';
 
 const router = Router();
@@ -23,7 +27,8 @@ router.get('/', async (_req: Request, res: Response) => {
           id: true,
           email: true,
           name: true,
-          twitter: true
+          twitter: true,
+          isAdmin: true
         }
       });
       !users
@@ -62,6 +67,13 @@ router.get('/:id', isUserAvailable, async (req: Request, res: Response) => {
       data = await prisma.user.findUnique({
         where: {
           id: req.params.id
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          twitter: true,
+          isAdmin: true
         }
       });
       console.log('====================================');
@@ -162,7 +174,7 @@ router.put(
       await fetchUserTable();
       res.status(200).json({
         ok: true,
-        message: "user has been made admin"
+        message: 'user has been made admin'
       });
     } catch (error) {
       console.log('====================================');
@@ -247,9 +259,9 @@ router.put(
       !user
         ? res.status(404).json('error updating the user')
         : res.status(200).json({
-          ok: true,
-          message: 'user profile has been updated',
-        });
+            ok: true,
+            message: 'user profile has been updated'
+          });
     } catch (error) {
       console.log('====================================');
       console.log(error);

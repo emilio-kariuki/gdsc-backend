@@ -1,9 +1,13 @@
 import redis from 'redis';
+import dotenv from 'dotenv'
+dotenv.config()
+
+const url = process.env.REDIS_URL
 
 export const redisClient = redis
   .createClient(
     {
-      url : "redis://default:38655a0591ff429eb66122f0361aa26c@us1-enough-sailfish-41406.upstash.io:41406"
+      url : url
     }
   )
   .on('error', (err) => console.log('Redis Client Error', err))
